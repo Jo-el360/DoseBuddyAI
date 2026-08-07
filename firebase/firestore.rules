@@ -1,0 +1,41 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isPatient(patientId) {
+      return isAuthenticated() && request.auth.uid == patientId;
+    }
+    
+    function isCaregiverOf(patientId) {
+      return isAuthenticated() && 
+        get(/databases/$(database)/documents/caregivers/$(request.auth.uid)).data.assignedPatients.hasAny([patientId]);
+    }
+
+    // Patients Collection
+    match /patients/{patientId} {
+      allow read, write: if isPatient(patientId) || isCaregiverOf(patientId);
+      
+      // Patient Medications Subcollection
+      match /medications/{medId} {
+        allow read: if isPatient(patientId) || isCaregiverOf(patientId);
+        allow write: if isPatient(patientId) || isCaregiverOf(patientId);
+      }
+      
+      // Dosage Confirmation Logs Subcollection
+      match /dosage_logs/{logId} {
+        allow read: if isPatient(patientId) || isCaregiverOf(patientId);
+        allow create: if isPatient(patientId);
+      }
+    }
+    
+    // Caregivers Collection
+    match /caregivers/{caregiverId} {
+      allow read, write: if isAuthenticated() && request.auth.uid == caregiverId;
+    }
+  }
+}

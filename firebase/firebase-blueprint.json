@@ -1,0 +1,186 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "User personal health profile, contact info, and daily routine preferences",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Unique Firebase auth UID" },
+        "email": { "type": "string", "description": "User primary email address" },
+        "fullName": { "type": "string", "description": "User full display name" },
+        "role": { "type": "string", "enum": ["patient", "caregiver", "doctor", "admin"] },
+        "age": { "type": "number", "description": "User age in years" },
+        "gender": { "type": "string" },
+        "country": { "type": "string" },
+        "timeZone": { "type": "string" },
+        "preferredLanguage": { "type": "string" },
+        "height": { "type": "string" },
+        "weight": { "type": "string" },
+        "bloodGroup": { "type": "string" },
+        "medicalConditions": { "type": "array", "items": { "type": "string" } },
+        "allergies": { "type": "array", "items": { "type": "string" } },
+        "emergencyContact": { "type": "string" },
+        "caregiverContact": { "type": "string" },
+        "dailyRoutine": { "type": "string" },
+        "wakeTime": { "type": "string" },
+        "sleepTime": { "type": "string" },
+        "breakfastTime": { "type": "string" },
+        "lunchTime": { "type": "string" },
+        "dinnerTime": { "type": "string" },
+        "isOnboarded": { "type": "boolean" },
+        "emailVerified": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "fullName", "role"]
+    },
+    "Medication": {
+      "title": "Medication Entity",
+      "description": "Medicine entry stored in cabinet with dosage, schedule, and safety guardrails",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "name": { "type": "string" },
+        "brand": { "type": "string" },
+        "genericName": { "type": "string" },
+        "dosage": { "type": "string" },
+        "category": { "type": "string" },
+        "frequency": { "type": "string" },
+        "timeSlots": { "type": "array", "items": { "type": "string" } },
+        "instructions": { "type": "string" },
+        "requiresBloodSugarCheck": { "type": "boolean" },
+        "targetGlucoseMin": { "type": "number" },
+        "targetGlucoseMax": { "type": "number" },
+        "pillColor": { "type": "string" },
+        "foodRelation": { "type": "string", "enum": ["before_food", "after_food", "with_food", "no_relation"] },
+        "imageUrl": { "type": "string" }
+      },
+      "required": ["id", "name", "dosage", "frequency"]
+    },
+    "Schedule": {
+      "title": "Medication Schedule",
+      "description": "Recurring reminder rules (daily, weekly, custom interval)",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "medicationId": { "type": "string" },
+        "reminderType": { "type": "string", "enum": ["daily", "weekly", "monthly", "custom"] },
+        "customIntervalDays": { "type": "number" },
+        "isEnabled": { "type": "boolean" }
+      },
+      "required": ["id", "userId", "medicationId", "reminderType"]
+    },
+    "Reminder": {
+      "title": "Scheduled Reminder Trigger",
+      "description": "Daily scheduled instance for medication notification",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "medicationId": { "type": "string" },
+        "scheduledTime": { "type": "string" },
+        "date": { "type": "string" },
+        "status": { "type": "string", "enum": ["PENDING", "TAKEN", "SKIPPED", "SNOOZED"] }
+      },
+      "required": ["id", "userId", "medicationId", "scheduledTime"]
+    },
+    "DosageLog": {
+      "title": "Dosage Execution Log",
+      "description": "Historical log of medicine intake, status, and blood sugar readings",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "medicationId": { "type": "string" },
+        "patientName": { "type": "string" },
+        "confirmedAt": { "type": "string" },
+        "status": { "type": "string", "enum": ["TAKEN", "SKIPPED", "SNOOZED", "PENDING"] },
+        "glucoseReading": { "type": "number" },
+        "notes": { "type": "string" }
+      },
+      "required": ["id", "medicationId", "confirmedAt", "status"]
+    },
+    "Caregiver": {
+      "title": "Caregiver Connection",
+      "description": "Link between patient and invited caregiver for remote alerts",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "patientUserId": { "type": "string" },
+        "caregiverUserId": { "type": "string" },
+        "caregiverEmail": { "type": "string" },
+        "caregiverPhone": { "type": "string" },
+        "status": { "type": "string", "enum": ["PENDING", "ACCEPTED", "REVOKED"] },
+        "permissions": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["id", "patientUserId", "caregiverEmail"]
+    },
+    "Notification": {
+      "title": "FCM Notification Entry",
+      "description": "Push notification record sent to patient or caregiver",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "recipientUserId": { "type": "string" },
+        "sender": { "type": "string" },
+        "title": { "type": "string" },
+        "message": { "type": "string" },
+        "severity": { "type": "string", "enum": ["normal", "urgent", "critical"] },
+        "fcmToken": { "type": "string" },
+        "read": { "type": "boolean" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["id", "recipientUserId", "title", "message"]
+    },
+    "Settings": {
+      "title": "User Preferences",
+      "description": "Display, accessibility, and reminder settings",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "isDarkMode": { "type": "boolean" },
+        "isHighContrast": { "type": "boolean" },
+        "isLargeText": { "type": "boolean" },
+        "reminderSound": { "type": "string" },
+        "preferredLanguage": { "type": "string" },
+        "pushEnabled": { "type": "boolean" }
+      },
+      "required": ["userId"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "User personal health profile"
+    },
+    "/medications/{medicationId}": {
+      "schema": { "$ref": "#/entities/Medication" },
+      "description": "Cabinet medication collection"
+    },
+    "/schedules/{scheduleId}": {
+      "schema": { "$ref": "#/entities/Schedule" },
+      "description": "Medication recurring schedules"
+    },
+    "/reminders/{reminderId}": {
+      "schema": { "$ref": "#/entities/Reminder" },
+      "description": "Scheduled reminder records"
+    },
+    "/logs/{logId}": {
+      "schema": { "$ref": "#/entities/DosageLog" },
+      "description": "Medication compliance history logs"
+    },
+    "/caregivers/{caregiverId}": {
+      "schema": { "$ref": "#/entities/Caregiver" },
+      "description": "Caregiver relations and permissions"
+    },
+    "/notifications/{notificationId}": {
+      "schema": { "$ref": "#/entities/Notification" },
+      "description": "Notification history & FCM alerts"
+    },
+    "/settings/{userId}": {
+      "schema": { "$ref": "#/entities/Settings" },
+      "description": "User preference settings"
+    }
+  }
+}

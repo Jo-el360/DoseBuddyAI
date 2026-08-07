@@ -1,0 +1,6 @@
+{
+  "name": "DoseBuddy AI",
+  "description": "AI-personalized medication reminder app for elderly diabetic patients with caregiver notifications and Gemini AI.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

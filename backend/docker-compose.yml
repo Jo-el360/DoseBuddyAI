@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  dosebuddy-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dosebuddy_fastapi_backend
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=production
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - FIREBASE_CREDENTIALS_PATH=firebase/firebase-credentials.json
+      - CAREGIVER_DEFAULT_PHONE=+15551234567
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
