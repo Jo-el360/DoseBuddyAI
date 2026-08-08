@@ -33,75 +33,9 @@ let systemLogsStore: Array<{
 ];
 
 // Initial Medications State Fallback
-let medicationsStore = [
-  {
-    id: "med_1",
-    name: "Metformin HCL",
-    dosage: "500 mg",
-    frequency: "Twice daily",
-    timeSlots: ["08:00 AM", "06:30 PM"],
-    instructions: "Take with meal (Breakfast & Dinner) to avoid stomach upset.",
-    requiresBloodSugarCheck: true,
-    targetGlucoseMin: 80,
-    targetGlucoseMax: 130,
-    pillColor: "White Oval Tablet #500",
-    category: "Diabetes",
-    foodRelation: "after_food",
-  },
-  {
-    id: "med_2",
-    name: "Lantus Insulin Glargine",
-    dosage: "18 Units",
-    frequency: "Once daily",
-    timeSlots: ["09:00 PM"],
-    instructions: "Inject bedtime subcutaneous. Log blood glucose.",
-    requiresBloodSugarCheck: true,
-    targetGlucoseMin: 90,
-    targetGlucoseMax: 140,
-    pillColor: "Clear Pen Injector",
-    category: "Diabetes",
-    foodRelation: "with_food",
-  },
-  {
-    id: "med_3",
-    name: "Jardiance (Empagliflozin)",
-    dosage: "10 mg",
-    frequency: "Once daily",
-    timeSlots: ["08:00 AM"],
-    instructions: "Take in the morning with a full glass of water.",
-    requiresBloodSugarCheck: false,
-    targetGlucoseMin: 80,
-    targetGlucoseMax: 130,
-    pillColor: "Round Light Yellow",
-    category: "Diabetes",
-    foodRelation: "after_food",
-  },
-  {
-    id: "med_4",
-    name: "Lisinopril",
-    dosage: "10 mg",
-    frequency: "Once daily",
-    timeSlots: ["08:00 AM"],
-    instructions: "Blood pressure protection for kidneys. Take every morning.",
-    requiresBloodSugarCheck: false,
-    targetGlucoseMin: 80,
-    targetGlucoseMax: 130,
-    pillColor: "Pink Round Tablet",
-    category: "Blood Pressure",
-    foodRelation: "after_food",
-  },
-];
+let medicationsStore: any[] = [];
 
-let dosageLogsStore = [
-  {
-    id: "log_1",
-    medicationId: "med_1",
-    patientName: "Maria Miller",
-    confirmedAt: "08:12 AM",
-    status: "TAKEN",
-    glucoseReading: 112,
-  },
-];
+let dosageLogsStore: any[] = [];
 
 let caregiverAlertsStore: Array<{
   id: string;

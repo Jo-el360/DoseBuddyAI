@@ -22,38 +22,7 @@ class ApiService {
       }
     } catch (_) {}
 
-    _cachedMeds = [
-      Medication(
-        id: 'med_1',
-        name: 'Metformin HCL',
-        dosage: '500 mg',
-        frequency: 'Twice daily',
-        timeSlots: ['08:00 AM', '06:30 PM'],
-        instructions: 'Take with meal to prevent upset stomach.',
-        requiresBloodSugarCheck: true,
-        pillColor: 'White Oval Tablet #500',
-      ),
-      Medication(
-        id: 'med_2',
-        name: 'Lantus Insulin Glargine',
-        dosage: '18 Units',
-        frequency: 'Once daily',
-        timeSlots: ['09:00 PM'],
-        instructions: 'Inject bedtime subcutaneous. Log blood sugar.',
-        requiresBloodSugarCheck: true,
-        pillColor: 'Clear Pen Injector',
-      ),
-      Medication(
-        id: 'med_3',
-        name: 'Jardiance (Empagliflozin)',
-        dosage: '10 mg',
-        frequency: 'Once daily',
-        timeSlots: ['08:00 AM'],
-        instructions: 'Take in the morning with or without food.',
-        requiresBloodSugarCheck: false,
-        pillColor: 'Round Light Yellow',
-      ),
-    ];
+    _cachedMeds = [];
     return List.from(_cachedMeds!);
   }
 

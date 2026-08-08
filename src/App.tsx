@@ -63,76 +63,7 @@ const DEFAULT_USER_PROFILE: UserProfile = {
   createdAt: new Date().toISOString(),
 };
 
-const INITIAL_MEDICATIONS: Medication[] = [
-  {
-    id: 'med_1',
-    name: 'Metformin HCL',
-    dosage: '500 mg',
-    frequency: 'Twice daily',
-    timeSlots: ['08:00 AM', '06:30 PM'],
-    instructions: 'Take with meal (Breakfast & Dinner) to avoid stomach upset.',
-    requiresBloodSugarCheck: true,
-    targetGlucoseMin: 80,
-    targetGlucoseMax: 130,
-    pillColor: 'White Oval Tablet #500',
-    category: 'Diabetes',
-    foodRelation: 'after_food',
-    pillsRemaining: 18,
-    totalPillCapacity: 60,
-    refillThreshold: 10,
-  },
-  {
-    id: 'med_2',
-    name: 'Lantus Insulin Glargine',
-    dosage: '18 Units',
-    frequency: 'Once daily',
-    timeSlots: ['09:00 PM'],
-    instructions: 'Inject bedtime subcutaneous. Log blood glucose.',
-    requiresBloodSugarCheck: true,
-    targetGlucoseMin: 90,
-    targetGlucoseMax: 140,
-    pillColor: 'Clear Pen Injector',
-    category: 'Diabetes',
-    foodRelation: 'with_food',
-    pillsRemaining: 6,
-    totalPillCapacity: 30,
-    refillThreshold: 7,
-  },
-  {
-    id: 'med_3',
-    name: 'Jardiance (Empagliflozin)',
-    dosage: '10 mg',
-    frequency: 'Once daily',
-    timeSlots: ['08:00 AM'],
-    instructions: 'Take in the morning with a full glass of water.',
-    requiresBloodSugarCheck: false,
-    targetGlucoseMin: 80,
-    targetGlucoseMax: 130,
-    pillColor: 'Round Light Yellow',
-    category: 'Diabetes',
-    foodRelation: 'after_food',
-    pillsRemaining: 28,
-    totalPillCapacity: 30,
-    refillThreshold: 7,
-  },
-  {
-    id: 'med_4',
-    name: 'Lisinopril',
-    dosage: '10 mg',
-    frequency: 'Once daily',
-    timeSlots: ['08:00 AM'],
-    instructions: 'Blood pressure protection for kidneys. Take every morning.',
-    requiresBloodSugarCheck: false,
-    targetGlucoseMin: 80,
-    targetGlucoseMax: 130,
-    pillColor: 'Pink Round Tablet',
-    category: 'Blood Pressure',
-    foodRelation: 'after_food',
-    pillsRemaining: 8,
-    totalPillCapacity: 30,
-    refillThreshold: 10,
-  },
-];
+const INITIAL_MEDICATIONS: Medication[] = [];
 
 const REPO_FILES: RepositoryFile[] = [
   {
@@ -263,16 +194,9 @@ export default function App() {
 
   // Application Data Stores
   const [medications, setMedications] = useState<Medication[]>(INITIAL_MEDICATIONS);
-  const [confirmedLogs, setConfirmedLogs] = useState<DosageLog[]>([
-    {
-      id: 'log_1',
-      medicationId: 'med_1',
-      patientName: 'Maria Miller',
-      confirmedAt: '08:12 AM',
-      status: 'TAKEN',
-      glucoseReading: 112,
-    },
-  ]);
+  const [confirmedLogs, setConfirmedLogs] = useState<DosageLog[]>(() => {
+    return [];
+  });
 
   const [sseStatus, setSseStatus] = useState<'connected' | 'connecting' | 'disconnected'>('connecting');
   const [activeLiveAlert, setActiveLiveAlert] = useState<{ sender: string; message: string; timestamp: string } | null>(null);
