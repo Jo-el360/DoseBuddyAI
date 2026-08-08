@@ -3,6 +3,7 @@ import 'screens/patient_home_screen.dart';
 import 'screens/medication_management_screen.dart';
 import 'screens/caregiver_dashboard_screen.dart';
 import 'screens/ai_assistant_screen.dart';
+import 'screens/profile_screen.dart';
 import 'screens/login_screen.dart';
 
 void main() {

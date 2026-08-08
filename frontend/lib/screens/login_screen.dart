@@ -215,7 +215,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         const Text(
                           '⚡ 1-CLICK DEMO SIGN IN',
                           textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.extrabold, color: Color(0xFF475569), letterSpacing: 0.5),
+                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFF475569), letterSpacing: 0.5),
                         ),
                         const SizedBox(height: 10),
                         ElevatedButton.icon(
