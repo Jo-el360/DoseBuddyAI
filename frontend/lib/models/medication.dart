@@ -30,7 +30,7 @@ class Medication {
     this.requiresBloodSugarCheck = false,
     this.targetGlucoseMin = 80,
     this.targetGlucoseMax = 130,
-    required this.pillColor,
+    this.pillColor = 'White Oval Tablet',
     this.imageUrl,
     this.notes = '',
   });

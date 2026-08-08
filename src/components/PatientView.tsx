@@ -37,14 +37,111 @@ export const PatientView: React.FC<PatientViewProps> = ({
   const [loadingAi, setLoadingAi] = useState<boolean>(false);
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
   const [testStatus, setTestStatus] = useState<string>('');
+  const [activeAlarmMedication, setActiveAlarmMedication] = useState<Medication | null>(null);
 
-  const triggerTestNotification = async () => {
-    setTestStatus('⚡ Triggering instant test reminder...');
+  // Auto-request desktop OS notification permissions on mount
+  useEffect(() => {
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+  }, []);
 
-    // 1. Voice Speech Announcement
+  // Web Audio API Synthesizer - Real Loud Medical Alarm Chime
+  const playAlarmChimeSound = () => {
+    try {
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+
+      // Dual-tone Medical Alarm Chime (E5 -> G5)
+      const playNote = (freq: number, delay: number, duration: number) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, ctx.currentTime + delay);
+        gain.gain.setValueAtTime(0.3, ctx.currentTime + delay);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + duration);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(ctx.currentTime + delay);
+        osc.stop(ctx.currentTime + delay + duration);
+      };
+
+      playNote(659.25, 0, 0.4);   // E5
+      playNote(783.99, 0.25, 0.5); // G5
+      playNote(659.25, 0.6, 0.4);  // E5
+      playNote(1046.50, 0.85, 0.8); // C6 bell
+    } catch (_) {}
+  };
+
+  // Real-Time System Clock & Auto-Reminder Engine
+  const [realtimeClock, setRealtimeClock] = useState<string>(() => new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }));
+  const [autoReminderActive] = useState<boolean>(true);
+  const [triggeredKeys, setTriggeredKeys] = useState<Set<string>>(new Set());
+
+  // Convert any 12h/24h time string like "08:00 AM", "8:00 AM", "12:37 PM", "21:00" to minutes from midnight
+  const parseTimeToMinutes = (t: string): number | null => {
+    if (!t) return null;
+    const clean = t.replace(/[\u202f\u00a0]/g, ' ').trim();
+    const match = clean.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i);
+    if (!match) return null;
+    let hours = parseInt(match[1], 10);
+    const minutes = parseInt(match[2], 10);
+    const period = match[3] ? match[3].toUpperCase() : null;
+
+    if (period === 'PM' && hours < 12) hours += 12;
+    if (period === 'AM' && hours === 12) hours = 0;
+
+    return hours * 60 + minutes;
+  };
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const now = new Date();
+      const rawTimeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+      setRealtimeClock(rawTimeStr);
+
+      if (!autoReminderActive) return;
+
+      const nowMinutes = now.getHours() * 60 + now.getMinutes();
+      const todayDateStr = now.toDateString();
+
+      for (const med of medications) {
+        const doseLog = confirmedLogs.find(log => log.medicationId === med.id);
+        if (doseLog?.status === 'TAKEN') continue;
+
+        for (const slot of med.timeSlots) {
+          const slotMinutes = parseTimeToMinutes(slot);
+          if (slotMinutes === null) continue;
+
+          const diff = nowMinutes - slotMinutes;
+          const triggerKey = `${med.id}_${slot}_${todayDateStr}`;
+
+          if (diff >= 0 && diff <= 3 && !triggeredKeys.has(triggerKey)) {
+            setTriggeredKeys((prev) => new Set(prev).add(triggerKey));
+            triggerNotificationForMed(med);
+            break;
+          }
+        }
+      }
+    }, 2000);
+    return () => clearInterval(timer);
+  }, [autoReminderActive, medications, triggeredKeys, confirmedLogs]);
+
+  const triggerNotificationForMed = async (med?: Medication) => {
+    const targetMed = med || medications[0];
+    const medName = targetMed ? `${targetMed.name} (${targetMed.dosage})` : 'Metformin 500mg';
+    const instructions = targetMed?.instructions || 'Take with food and water.';
+    setTestStatus(`⚡ Alert Triggered: ${medName}`);
+    if (targetMed) setActiveAlarmMedication(targetMed);
+
+    // 1. Play Real Audible Alarm Chime Sound
+    playAlarmChimeSound();
+
+    // 2. Voice Speech Announcement
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
-      const testText = `Attention ${userProfile.fullName || 'User'}! This is an instant test reminder for your scheduled dose of Metformin 500 milligrams.`;
+      const testText = `Attention ${userProfile.fullName || 'User'}! It is now ${realtimeClock}. Time for your scheduled dose of ${medName}. ${instructions}`;
       const utterance = new SpeechSynthesisUtterance(testText);
       utterance.rate = 0.9;
       utterance.onstart = () => setIsSpeaking(true);
@@ -52,36 +149,40 @@ export const PatientView: React.FC<PatientViewProps> = ({
       window.speechSynthesis.speak(utterance);
     }
 
-    // 2. Desktop Web Browser Notification
+    // 3. Native Desktop Web Browser System Notification
     if ('Notification' in window) {
       if (Notification.permission === 'granted') {
-        new Notification(`💊 DoseBuddy Reminder for ${userProfile.fullName || 'User'}`, {
-          body: 'Scheduled Time Reached: Take Metformin 500mg (1 Tablet with Water).',
+        new Notification(`💊 DoseBuddy Alarm: ${medName}`, {
+          body: `Scheduled Time: ${realtimeClock}. Instructions: ${instructions}`,
+          icon: '/favicon.png',
+          requireInteraction: true,
         });
       } else if (Notification.permission !== 'denied') {
         const perm = await Notification.requestPermission();
         if (perm === 'granted') {
-          new Notification(`💊 DoseBuddy Reminder for ${userProfile.fullName || 'User'}`, {
-            body: 'Scheduled Time Reached: Take Metformin 500mg (1 Tablet with Water).',
+          new Notification(`💊 DoseBuddy Alarm: ${medName}`, {
+            body: `Scheduled Time: ${realtimeClock}. Instructions: ${instructions}`,
+            icon: '/favicon.png',
+            requireInteraction: true,
           });
         }
       }
     }
 
-    // 3. Real-Time Server Push Broadcast via SSE
+    // 4. Trigger SSE Alert Payload to Caregiver
     try {
       await fetch('/api/nudge', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          sender: 'DoseBuddy Alarm System',
-          message: `🔔 TEST REMINDER: Time to take Metformin 500mg for ${userProfile.fullName || 'Patient'}!`,
-          severity: 'info',
+          patientName: userProfile.fullName,
+          medicationName: medName,
+          scheduledTime: realtimeClock,
         }),
       });
-      setTestStatus('✅ Live Alarm Triggered! Check your screen for the floating banner and listen to the voice nudge.');
+      setTestStatus(`✅ Live Alarm Triggered for ${medName}!`);
     } catch (err) {
-      setTestStatus('✅ Audio & Voice Reminder Triggered!');
+      setTestStatus(`✅ Audio & Voice Alarm Triggered for ${medName}!`);
     }
   };
 
@@ -154,6 +255,46 @@ export const PatientView: React.FC<PatientViewProps> = ({
 
   return (
     <div className={`space-y-6 ${isHighContrast ? 'bg-yellow-50 text-black p-4 rounded-xl border-4 border-black' : ''}`}>
+      {/* Active Scheduled Alarm Popup Modal */}
+      {activeAlarmMedication && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-slate-900 border-2 border-sky-500 rounded-3xl p-6 max-w-md w-full shadow-2xl text-white text-center space-y-5 relative overflow-hidden">
+            <div className="w-16 h-16 bg-sky-500/20 border border-sky-400/40 rounded-2xl flex items-center justify-center mx-auto text-sky-300 animate-bounce">
+              <BellRing className="w-10 h-10 text-sky-400" />
+            </div>
+            <div>
+              <span className="px-3 py-1 bg-red-500/20 text-red-400 border border-red-500/30 text-xs font-black uppercase rounded-full tracking-wider">
+                🚨 SCHEDULED REMINDER ALARM DUE NOW
+              </span>
+              <h3 className="text-2xl font-bold mt-2 text-white">
+                {activeAlarmMedication.name} ({activeAlarmMedication.dosage})
+              </h3>
+              <p className="text-sky-200 text-sm mt-1">
+                Scheduled for {realtimeClock}. {activeAlarmMedication.instructions}
+              </p>
+            </div>
+
+            <div className="flex gap-3 pt-2">
+              <button
+                onClick={() => {
+                  onConfirmDose(activeAlarmMedication.id, 'TAKEN', parseFloat(bloodSugar));
+                  setActiveAlarmMedication(null);
+                }}
+                className="flex-1 py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm rounded-xl shadow-lg transition flex items-center justify-center gap-2"
+              >
+                <CheckCircle2 className="w-5 h-5" />
+                <span>I TOOK THIS MEDICINE NOW</span>
+              </button>
+              <button
+                onClick={() => setActiveAlarmMedication(null)}
+                className="px-4 py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-sm rounded-xl transition"
+              >
+                Dismiss
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Patient Welcome Header */}
       <div className={`p-6 rounded-2xl border ${isHighContrast ? 'bg-white border-4 border-black' : 'bg-white border-slate-200 shadow-sm'}`}>
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -208,10 +349,13 @@ export const PatientView: React.FC<PatientViewProps> = ({
               <BellRing className="w-6 h-6 animate-bounce" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <h3 className="font-bold text-base text-white">How Reminders Work & Instant Test</h3>
                 <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] uppercase font-extrabold rounded-full">
                   Real-Time SSE Active
+                </span>
+                <span className="px-2 py-0.5 bg-sky-500/20 text-sky-200 border border-sky-400/30 text-[10px] font-mono font-bold rounded-full">
+                  🕒 Live Clock: {realtimeClock}
                 </span>
               </div>
               <p className="text-sky-200 text-xs mt-1 leading-relaxed max-w-2xl">
@@ -227,7 +371,7 @@ export const PatientView: React.FC<PatientViewProps> = ({
 
           <div className="flex items-center gap-2 flex-shrink-0">
             <button
-              onClick={triggerTestNotification}
+              onClick={() => triggerNotificationForMed(medications[0])}
               className="px-4 py-2.5 bg-sky-500 hover:bg-sky-400 text-white font-extrabold text-xs rounded-xl shadow-md transition flex items-center gap-2"
             >
               <BellRing className="w-4 h-4" />

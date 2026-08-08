@@ -26,34 +26,116 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
   double? _bloodSugarInput;
   final FlutterTts _flutterTts = FlutterTts();
 
-  void _triggerInstantReminderTest() async {
+  void _triggerInstantReminderTest() {
+    if (_medications.isNotEmpty) {
+      _triggerReminderForMed(_medications.first, _formatTime(DateTime.now()));
+    } else {
+      _triggerReminderForMed(
+        Medication(
+          id: 'test_1',
+          name: 'Metformin HCL',
+          dosage: '500 mg',
+          frequency: 'Once Daily',
+          timeSlots: ['08:00 AM'],
+          instructions: 'Take with meal and a glass of water.',
+        ),
+        _formatTime(DateTime.now()),
+      );
+    }
+  }
+
+  late final dynamic _timer;
+  String _lastTriggeredTime = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+    _startRealtimeClock();
+  }
+
+  final Set<String> _triggeredKeys = {};
+
+  int? _parseTimeToMinutes(String t) {
+    if (t.trim().isEmpty) return null;
+    final clean = t.replaceAll(RegExp(r'[\u202f\u00a0]'), ' ').trim();
+    final match = RegExp(r'^(\d{1,2}):(\d{2})\s*(AM|PM)?$', caseSensitive: false).firstMatch(clean);
+    if (match == null) return null;
+    int hours = int.parse(match.group(1)!);
+    final minutes = int.parse(match.group(2)!);
+    final period = match.group(3)?.toUpperCase();
+
+    if (period == 'PM' && hours < 12) hours += 12;
+    if (period == 'AM' && hours == 12) hours = 0;
+
+    return hours * 60 + minutes;
+  }
+
+  void _startRealtimeClock() {
+    _timer = Stream.periodic(const Duration(seconds: 2)).listen((_) {
+      final now = DateTime.now();
+      final nowMinutes = now.hour * 60 + now.minute;
+      final todayStr = "${now.year}-${now.month}-${now.day}";
+
+      for (final med in _medications) {
+        if (_takenToday[med.id] == true) continue;
+
+        for (final slot in med.timeSlots) {
+          final slotMinutes = _parseTimeToMinutes(slot);
+          if (slotMinutes == null) continue;
+
+          final diff = nowMinutes - slotMinutes;
+          final key = "${med.id}_${slot}_$todayStr";
+
+          if (diff >= 0 && diff <= 3 && !_triggeredKeys.contains(key)) {
+            _triggeredKeys.add(key);
+            _triggerReminderForMed(med, _formatTime(now));
+            break;
+          }
+        }
+      }
+    });
+  }
+
+  String _formatTime(DateTime dt) {
+    int hour = dt.hour;
+    int minute = dt.minute;
+    String period = hour >= 12 ? 'PM' : 'AM';
+    hour = hour % 12;
+    if (hour == 0) hour = 12;
+    String hStr = hour < 10 ? '0$hour' : '$hour';
+    String mStr = minute < 10 ? '0$minute' : '$minute';
+    return '$hStr:$mStr $period';
+  }
+
+  void _triggerReminderForMed(Medication med, String timeStr) async {
     try {
       await _flutterTts.setLanguage("en-US");
       await _flutterTts.setSpeechRate(0.5);
-      await _flutterTts.speak("Attention Maria! This is an instant test reminder for your scheduled dose of Metformin 500 milligrams.");
+      await _flutterTts.speak("Attention Maria! It is now $timeStr. Time to take your scheduled dose of ${med.name} (${med.dosage}). ${med.instructions}");
     } catch (_) {}
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Row(
+          content: Row(
             children: [
-              Icon(Icons.notifications_active, color: Colors.white, size: 28),
-              SizedBox(width: 12),
+              const Icon(Icons.notifications_active, color: Colors.white, size: 28),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("🔔 INSTANT REMINDER ALARM", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                    Text("Time to take Metformin 500mg (1 Tablet with Water)!"),
+                    Text("🔔 REMINDER ALARM ($timeStr)", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    Text("${med.name} (${med.dosage}) - ${med.instructions}"),
                   ],
                 ),
               ),
             ],
           ),
           backgroundColor: const Color(0xFF0369A1),
-          duration: const Duration(seconds: 5),
+          duration: const Duration(seconds: 6),
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         ),
@@ -62,9 +144,9 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    _loadData();
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 
   Future<void> _loadData() async {

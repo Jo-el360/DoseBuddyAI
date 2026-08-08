@@ -212,6 +212,7 @@ class _MedicationManagementScreenState extends State<MedicationManagementScreen>
                     _medications.add(newMed);
                   }
                 });
+                ApiService.addOrUpdateMedication(newMed);
 
                 Navigator.pop(ctx);
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -412,7 +413,9 @@ class _MedicationManagementScreenState extends State<MedicationManagementScreen>
                                         const SizedBox(width: 8),
                                         TextButton.icon(
                                           onPressed: () {
-                                            setState(() => _medications.removeWhere((m) => m.id == med.id));
+                                            final idToDelete = med.id;
+                                            setState(() => _medications.removeWhere((m) => m.id == idToDelete));
+                                            ApiService.deleteMedication(idToDelete);
                                             ScaffoldMessenger.of(context).showSnackBar(
                                               SnackBar(content: Text('${med.name} deleted.')),
                                             );

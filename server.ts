@@ -508,18 +508,24 @@ Rules:
     console.warn("AI chat fallback triggered due to API quota/error:", error?.message || error);
 
     // Smart Conversational Clinical Fallback Engine
-    let smartReply = `Hello ${userName}! I am here with you. Please remember to take your medications as prescribed, check your blood glucose regularly, and stay hydrated. How else can I help your routine today?`;
+    let smartReply = `Great question, ${userName}! Regarding "${message}": For your health routine with ${Array.isArray(medicationList) && medicationList.length > 0 ? medicationList.map((m: any) => m.name).join(', ') : 'your medications'}, stay consistent with prescribed timings, monitor your blood glucose, and drink plenty of water. Is there a specific medication or routine detail you'd like to check?`;
 
-    if (query.includes('metformin') || (query.includes('before') && query.includes('after'))) {
+    if (query.includes('tea') || query.includes('coffee') || query.includes('drink') || query.includes('beverage') || query.includes('chai')) {
+      smartReply = `Yes ${userName}, drinking tea or coffee after lunch is generally fine! Just be mindful to keep added sugar minimal to prevent blood glucose spikes, and avoid drinking heavy caffeine right when taking mineral supplements.`;
+    } else if (query.includes('metformin') || (query.includes('before') && query.includes('after'))) {
       smartReply = `Metformin HCL (500mg) should be taken WITH or AFTER your meal (Breakfast/Dinner). Taking it with food prevents stomach upset and manages post-meal blood sugar levels.`;
-    } else if (query.includes('below') || query.includes('80') || query.includes('low') || query.includes('hypo')) {
-      smartReply = `If your blood glucose drops below 80 mg/dL: Follow the 15-15 Rule. Eat/drink 15g of fast-acting carbs (like 4 oz fruit juice or 3-4 glucose tablets), wait 15 minutes, and re-test your blood sugar.`;
-    } else if (query.includes('lisinopril') || query.includes('coffee') || query.includes('blood pressure')) {
-      smartReply = `Lisinopril (10mg) protects your kidneys and controls blood pressure. It can be taken with morning coffee or food, but rise slowly from sitting to prevent dizziness.`;
+    } else if (query.includes('food') || query.includes('eat') || query.includes('lunch') || query.includes('lucnh') || query.includes('breakfast') || query.includes('dinner') || query.includes('meal') || query.includes('diet') || query.includes('snack')) {
+      smartReply = `For healthy diabetic meal timing: Pair complex carbs with fiber and lean protein. Remember that Metformin should be taken with or after meals, while Lantus Insulin is logged at bedtime (09:00 PM).`;
+    } else if (query.includes('sugar') || query.includes('glucose') || query.includes('below') || query.includes('80') || query.includes('low') || query.includes('high') || query.includes('spike')) {
+      smartReply = `Target blood glucose range: 80–130 mg/dL before meals. If sugar drops below 70-80 mg/dL, follow the 15-15 Rule (15g fast carbs, wait 15 mins). If sugar spikes over 250 mg/dL, log your reading and stay hydrated.`;
+    } else if (query.includes('lisinopril') || query.includes('pressure') || query.includes('dizzy') || query.includes('dizziness') || query.includes('headache') || query.includes('nausea') || query.includes('side effect')) {
+      smartReply = `Lisinopril (10mg) controls blood pressure and protects your kidneys. If you experience mild dizziness, rise slowly from sitting or lying down. If dizziness persists, check blood pressure and notify your caregiver.`;
     } else if (query.includes('lantus') || query.includes('insulin') || query.includes('bedtime')) {
-      smartReply = `Lantus Insulin Glargine (18 Units) is scheduled once daily at bedtime (09:00 PM). Always log your blood glucose reading before injecting.`;
+      smartReply = `Lantus Insulin Glargine (18 Units) is scheduled once daily at bedtime (09:00 PM). Always check and log your blood glucose reading before injecting.`;
+    } else if (query.includes('miss') || query.includes('forgot') || query.includes('skip') || query.includes('late')) {
+      smartReply = `If you missed a medication dose: Take it as soon as you remember, unless it's nearly time for your next scheduled dose. Never double up doses to make up for a missed pill!`;
     } else if (query.includes('hey') || query.includes('hi') || query.includes('hello') || query.includes('how are you')) {
-      smartReply = `Hello ${userName}! I'm DoseBuddy AI. I'm actively monitoring your health schedule and medications. Ask me anything about meal timing, insulin, or blood sugar!`;
+      smartReply = `Hello ${userName}! I'm DoseBuddy AI. I'm actively monitoring your health schedule and active medications (${Array.isArray(medicationList) && medicationList.length > 0 ? medicationList.map((m: any) => m.name).join(', ') : 'Metformin, Lantus, Lisinopril'}). Ask me anything about meal timing, insulin, or blood sugar!`;
     }
 
     res.json({

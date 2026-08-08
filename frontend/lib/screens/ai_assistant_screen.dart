@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/api_service.dart';
 
 class AIAssistantScreen extends StatefulWidget {
   const AIAssistantScreen({super.key});
@@ -20,7 +21,7 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
 
   final List<String> _languages = ['English', 'Spanish', 'Tagalog', 'Hindi', 'Mandarin'];
 
-  void _sendQuery(String promptText) {
+  void _sendQuery(String promptText) async {
     if (promptText.trim().isEmpty) return;
     setState(() {
       _messages.add({'sender': 'user', 'text': promptText});
@@ -28,32 +29,19 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
     });
     _queryCtrl.clear();
 
-    // Simulate AI reasoning and response tailored to diabetes/hypertension context
-    Future.delayed(const Duration(milliseconds: 1200), () {
-      String reply = '';
-      final lower = promptText.toLowerCase();
+    final aiReply = await ApiService.chatWithAI(promptText, 'Maria');
 
-      if (lower.contains('grapefruit') || lower.contains('atorvastatin')) {
-        reply = '⚠️ Drug-Food Warning: Avoid eating large quantities of grapefruit or drinking grapefruit juice while taking Atorvastatin. Grapefruit increases the level of Atorvastatin in your blood, increasing the risk of muscle pain and side effects.';
-      } else if (lower.contains('missed') || lower.contains('forgot')) {
-        reply = '💡 Missed Dose Guidance: If you remember within a few hours, take your dose with food. If it is almost time for your next scheduled dose, skip the missed dose. Never take two doses at the same time to make up for a missed dose.';
-      } else if (lower.contains('metformin')) {
-        reply = '💊 Metformin Tip: Always take Metformin with or immediately after meals to reduce stomach upset. Make sure to stay hydrated throughout the day and log your blood glucose levels regularly.';
-      } else if (lower.contains('scan') || lower.contains('ocr') || lower.contains('label')) {
-        reply = '📷 Prescription Scanner Ready! Tap the "Scan Prescription Bottle" button above to upload or take a photo of your pill bottle label.';
-      } else {
-        reply = '🤖 DoseBuddy AI: Based on your health profile, remember to maintain regular blood sugar checks before meals. Is there a specific medication or symptom you would like to ask about?';
-      }
+    String reply = aiReply;
+    if (_selectedLanguage != 'English') {
+      reply = '[$_selectedLanguage Translation] $reply';
+    }
 
-      if (_selectedLanguage != 'English') {
-        reply = '[$_selectedLanguage Translation] $reply';
-      }
-
+    if (mounted) {
       setState(() {
         _messages.add({'sender': 'bot', 'text': reply});
         _isAnalyzing = false;
       });
-    });
+    }
   }
 
   void _simulateOCRScan() {
