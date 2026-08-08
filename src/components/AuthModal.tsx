@@ -130,24 +130,17 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     setLoading(true);
     setErrorMessage('');
     try {
-      let uid = `google_${Date.now()}`;
-      let name = 'Maria Miller (Google)';
-      let gEmail = 'maria.google@gmail.com';
-
-      try {
-        const res = await signInWithPopup(auth, googleProvider);
-        uid = res.user.uid;
-        name = res.user.displayName || name;
-        gEmail = res.user.email || gEmail;
-      } catch (fErr: any) {
-        console.warn("Firebase Google popup fallback mode:", fErr.message);
-      }
+      const res = await signInWithPopup(auth, googleProvider);
+      const uid = res.user.uid;
+      const name = res.user.displayName || (res.user.email ? res.user.email.split('@')[0] : 'Google User');
+      const gEmail = res.user.email || 'google.user@dosebuddy.ai';
 
       const profile = createDefaultProfile(uid, name, gEmail, selectedRole);
       onLoginSuccess(profile);
       onClose();
     } catch (err: any) {
-      setErrorMessage('Google Login unavailable or popup closed.');
+      console.error('Google Sign-In Error:', err);
+      setErrorMessage(err.message || 'Google Sign-In unavailable or domain not authorized in Firebase Console. Please sign in with Email/Password.');
     } finally {
       setLoading(false);
     }

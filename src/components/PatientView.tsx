@@ -79,7 +79,7 @@ export const PatientView: React.FC<PatientViewProps> = ({
   const [autoReminderActive] = useState<boolean>(true);
   const [triggeredKeys, setTriggeredKeys] = useState<Set<string>>(new Set());
 
-  // Convert any 12h/24h time string like "08:00 AM", "8:00 AM", "12:37 PM", "21:00" to minutes from midnight
+  // Convert any 12h/24h time string like "08:00 AM", "8:00 AM", "2:40", "12:37 PM", "21:00" to minutes from midnight
   const parseTimeToMinutes = (t: string): number | null => {
     if (!t) return null;
     const clean = t.replace(/[\u202f\u00a0]/g, ' ').trim();
@@ -91,6 +91,8 @@ export const PatientView: React.FC<PatientViewProps> = ({
 
     if (period === 'PM' && hours < 12) hours += 12;
     if (period === 'AM' && hours === 12) hours = 0;
+    // Smart PM inference for afternoon times like "2:40" or "02:40"
+    if (!period && hours > 0 && hours <= 7) hours += 12;
 
     return hours * 60 + minutes;
   };

@@ -358,6 +358,32 @@ export default function App() {
     setUserProfile(profile);
     setIsLoggedIn(true);
     localStorage.setItem('dosebuddy_auth_session', 'true');
+    localStorage.setItem(`dosebuddy_user_profile_${profile.uid}`, JSON.stringify(profile));
+
+    const userMedsKey = `dosebuddy_medications_${profile.uid}`;
+    const savedMeds = localStorage.getItem(userMedsKey);
+    if (savedMeds) {
+      try {
+        setMedications(JSON.parse(savedMeds));
+      } catch (e) {
+        setMedications(INITIAL_MEDICATIONS);
+      }
+    } else {
+      setMedications(INITIAL_MEDICATIONS);
+      localStorage.setItem(userMedsKey, JSON.stringify(INITIAL_MEDICATIONS));
+    }
+
+    const userLogsKey = `dosebuddy_dosage_logs_${profile.uid}`;
+    const savedLogs = localStorage.getItem(userLogsKey);
+    if (savedLogs) {
+      try {
+        setConfirmedLogs(JSON.parse(savedLogs));
+      } catch (e) {
+        setConfirmedLogs([]);
+      }
+    } else {
+      setConfirmedLogs([]);
+    }
   };
 
   const handleLogout = async () => {
@@ -367,11 +393,13 @@ export default function App() {
       console.warn('Sign out error:', e);
     }
     // Complete State Cleansing on Logout
+    setFirebaseUser(null);
     setIsLoggedIn(false);
     setMedications([]);
     setConfirmedLogs([]);
     setUserProfile(DEFAULT_USER_PROFILE);
     localStorage.removeItem('dosebuddy_auth_session');
+    localStorage.removeItem('dosebuddy_user_profile');
   };
 
   // Real-Time SSE Stream Listener
