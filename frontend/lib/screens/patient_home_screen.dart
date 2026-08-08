@@ -161,6 +161,10 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
       setState(() {
         _aiReminderMessage = aiRes['message'] ?? aiRes['fallback']?['reminderMessage'] ?? "Time for your morning medication!";
       });
+    } else {
+      setState(() {
+        _aiReminderMessage = "Welcome to DoseBuddy AI! 🩺 Your medication cabinet is clean and ready. Tap '+ Add Medicine' to get started!";
+      });
     }
   }
 

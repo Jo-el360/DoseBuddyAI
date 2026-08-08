@@ -9,59 +9,7 @@ class DosageHistoryScreen extends StatefulWidget {
 }
 
 class _DosageHistoryScreenState extends State<DosageHistoryScreen> {
-  final List<DosageLog> _logs = [
-    DosageLog(
-      id: 'log_101',
-      medicationId: 'med_1',
-      medicationName: 'Metformin HCL',
-      dosage: '500 mg',
-      scheduledTime: DateTime.now().subtract(const Duration(hours: 4)),
-      confirmedAt: DateTime.now().subtract(const Duration(hours: 3, minutes: 52)),
-      status: 'TAKEN',
-      glucoseReading: 112,
-      notes: 'Taken after breakfast with full glass of water',
-    ),
-    DosageLog(
-      id: 'log_102',
-      medicationId: 'med_2',
-      medicationName: 'Lantus Insulin',
-      dosage: '18 Units',
-      scheduledTime: DateTime.now().subtract(const Duration(days: 1, hours: 2)),
-      confirmedAt: DateTime.now().subtract(const Duration(days: 1, hours: 1, minutes: 55)),
-      status: 'TAKEN',
-      glucoseReading: 138,
-      notes: 'Bedtime injection. Left thigh.',
-    ),
-    DosageLog(
-      id: 'log_103',
-      medicationId: 'med_1',
-      medicationName: 'Metformin HCL',
-      dosage: '500 mg',
-      scheduledTime: DateTime.now().subtract(const Duration(days: 1, hours: 14)),
-      confirmedAt: DateTime.now().subtract(const Duration(days: 1, hours: 13, minutes: 50)),
-      status: 'TAKEN',
-      glucoseReading: 108,
-    ),
-    DosageLog(
-      id: 'log_104',
-      medicationId: 'med_3',
-      medicationName: 'Atorvastatin',
-      dosage: '20 mg',
-      scheduledTime: DateTime.now().subtract(const Duration(days: 2, hours: 3)),
-      status: 'SKIPPED',
-      notes: 'Forgot dose due to evening event',
-    ),
-    DosageLog(
-      id: 'log_105',
-      medicationId: 'med_1',
-      medicationName: 'Metformin HCL',
-      dosage: '500 mg',
-      scheduledTime: DateTime.now().subtract(const Duration(days: 2, hours: 14)),
-      confirmedAt: DateTime.now().subtract(const Duration(days: 2, hours: 13, minutes: 45)),
-      status: 'TAKEN',
-      glucoseReading: 115,
-    ),
-  ];
+  final List<DosageLog> _logs = [];
 
   String _selectedFilter = 'ALL';
 
