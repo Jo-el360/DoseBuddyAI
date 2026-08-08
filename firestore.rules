@@ -2,89 +2,21 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Global Catch-All Deny
-    match /{document=**} {
-      allow read, write: if false;
-    }
-
-    // Helper Functions
-    function isSignedIn() {
-      return request.auth != null;
-    }
-
-    function isOwner(userId) {
-      return isSignedIn() && request.auth.uid == userId;
-    }
-
-    function isValidId(id) {
-      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
-    }
-
-
-
-    // Users Collection
+    // User profile and subcollections: Accessible ONLY by authenticated owner UID
     match /users/{userId} {
-      allow get: if isSignedIn();
-      allow list: if isSignedIn();
-      allow create: if isOwner(userId) && isValidId(userId);
-      allow update: if isOwner(userId) && isValidId(userId);
-      allow delete: if isOwner(userId);
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      
+      match /{allSubcollections=**} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
     }
 
-    // Medications Collection
-    match /medications/{medicationId} {
-      allow read: if isSignedIn();
-      allow create: if isSignedIn() && isValidId(medicationId);
-      allow update: if isSignedIn() && isValidId(medicationId);
-      allow delete: if isSignedIn();
-    }
-
-    // Schedules Collection
-    match /schedules/{scheduleId} {
-      allow read: if isSignedIn();
-      allow create: if isSignedIn() && isValidId(scheduleId);
-      allow update: if isSignedIn() && isValidId(scheduleId);
-      allow delete: if isSignedIn();
-    }
-
-    // Reminders Collection
-    match /reminders/{reminderId} {
-      allow read: if isSignedIn();
-      allow create: if isSignedIn() && isValidId(reminderId);
-      allow update: if isSignedIn() && isValidId(reminderId);
-      allow delete: if isSignedIn();
-    }
-
-    // Dosage Logs Collection
-    match /logs/{logId} {
-      allow read: if isSignedIn();
-      allow create: if isSignedIn() && isValidId(logId);
-      allow update: if isSignedIn() && isValidId(logId);
-      allow delete: if isSignedIn();
-    }
-
-    // Caregivers Collection
-    match /caregivers/{caregiverId} {
-      allow read: if isSignedIn();
-      allow create: if isSignedIn() && isValidId(caregiverId);
-      allow update: if isSignedIn() && isValidId(caregiverId);
-      allow delete: if isSignedIn();
-    }
-
-    // Notifications Collection
-    match /notifications/{notificationId} {
-      allow read: if isSignedIn();
-      allow create: if isSignedIn() && isValidId(notificationId);
-      allow update: if isSignedIn() && isValidId(notificationId);
-      allow delete: if isSignedIn();
-    }
-
-    // Settings Collection
-    match /settings/{userId} {
-      allow read: if isSignedIn();
-      allow create: if isOwner(userId);
-      allow update: if isOwner(userId);
-      allow delete: if isOwner(userId);
+    // Caregiver access: Allow authenticated caregivers or patient owner to access dosage logs
+    match /users/{userId}/dosage_logs/{logId} {
+      allow read: if request.auth != null && (
+        request.auth.uid == userId ||
+        request.auth.token.role == 'caregiver'
+      );
     }
   }
 }

@@ -283,29 +283,82 @@ export default function App() {
     localStorage.setItem('dosebuddy_user_profile', JSON.stringify(updated));
   };
 
-  // Firebase Real-Time Auth State Listener
+  // Firebase Real-Time Auth State Listener & Per-User Data Isolation
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setFirebaseUser(user);
       if (user) {
-        setUserProfile((prev) => {
-          const nameFromEmail = user.email ? user.email.split('@')[0] : 'User';
-          const resolvedName = user.displayName || (prev.fullName && prev.fullName !== 'John Doe' && prev.fullName !== 'Maria Miller' ? prev.fullName : nameFromEmail);
-          const updated: UserProfile = {
-            ...prev,
-            uid: user.uid,
-            email: user.email || prev.email,
-            fullName: resolvedName,
-          };
-          localStorage.setItem('dosebuddy_user_profile', JSON.stringify(updated));
-          return updated;
-        });
+        setIsLoggedIn(true);
+        localStorage.setItem('dosebuddy_auth_session', 'true');
+        
+        // 1. Resolve User Profile
+        const nameFromEmail = user.email ? user.email.split('@')[0] : 'User';
+        const resolvedName = user.displayName || nameFromEmail;
+        const updatedProfile: UserProfile = {
+          ...DEFAULT_USER_PROFILE,
+          uid: user.uid,
+          email: user.email || 'user@dosebuddy.ai',
+          fullName: resolvedName,
+        };
+        setUserProfile(updatedProfile);
+        localStorage.setItem(`dosebuddy_user_profile_${user.uid}`, JSON.stringify(updatedProfile));
+
+        // 2. Load User Isolated Medications
+        const userMedsKey = `dosebuddy_medications_${user.uid}`;
+        const savedMeds = localStorage.getItem(userMedsKey);
+        if (savedMeds) {
+          try {
+            setMedications(JSON.parse(savedMeds));
+          } catch (e) {
+            setMedications(INITIAL_MEDICATIONS);
+          }
+        } else {
+          setMedications(INITIAL_MEDICATIONS);
+          localStorage.setItem(userMedsKey, JSON.stringify(INITIAL_MEDICATIONS));
+        }
+
+        // 3. Load User Isolated Dosage Logs
+        const userLogsKey = `dosebuddy_dosage_logs_${user.uid}`;
+        const savedLogs = localStorage.getItem(userLogsKey);
+        if (savedLogs) {
+          try {
+            setConfirmedLogs(JSON.parse(savedLogs));
+          } catch (e) {
+            setConfirmedLogs([]);
+          }
+        } else {
+          setConfirmedLogs([]);
+        }
+      } else {
+        setIsLoggedIn(false);
+        setMedications([]);
+        setConfirmedLogs([]);
       }
     });
     return () => unsubscribe();
   }, []);
+
+  // Save per-user medications on edit/add/delete
+  useEffect(() => {
+    if (firebaseUser?.uid && medications.length >= 0) {
+      localStorage.setItem(`dosebuddy_medications_${firebaseUser.uid}`, JSON.stringify(medications));
+    }
+  }, [medications, firebaseUser]);
+
+  // Save per-user logs on confirmation
+  useEffect(() => {
+    if (firebaseUser?.uid && confirmedLogs.length >= 0) {
+      localStorage.setItem(`dosebuddy_dosage_logs_${firebaseUser.uid}`, JSON.stringify(confirmedLogs));
+    }
+  }, [confirmedLogs, firebaseUser]);
+
+  const handleLoginSuccess = (profile: UserProfile) => {
+    setUserProfile(profile);
+    setIsLoggedIn(true);
+    localStorage.setItem('dosebuddy_auth_session', 'true');
+  };
 
   const handleLogout = async () => {
     try {
@@ -313,15 +366,12 @@ export default function App() {
     } catch (e) {
       console.warn('Sign out error:', e);
     }
-    const guestProfile: UserProfile = {
-      ...DEFAULT_USER_PROFILE,
-      uid: 'guest_user',
-      fullName: 'Guest User',
-      email: 'guest@dosebuddy.ai',
-      role: 'patient',
-    };
-    setUserProfile(guestProfile);
-    localStorage.removeItem('dosebuddy_user_profile');
+    // Complete State Cleansing on Logout
+    setIsLoggedIn(false);
+    setMedications([]);
+    setConfirmedLogs([]);
+    setUserProfile(DEFAULT_USER_PROFILE);
+    localStorage.removeItem('dosebuddy_auth_session');
   };
 
   // Real-Time SSE Stream Listener
