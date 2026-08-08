@@ -48,8 +48,8 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
   const [allergies, setAllergies] = useState<string>(
     userProfile.allergies?.join(', ') || 'Penicillin'
   );
-  const [emergencyContact, setEmergencyContact] = useState(userProfile.emergencyContact || '+1 555-911-0000');
-  const [caregiverContact, setCaregiverContact] = useState(userProfile.caregiverContact || '+1 555-888-9999 (Dr. Carlos)');
+  const [emergencyContact, setEmergencyContact] = useState(userProfile.emergencyContact || '+91 98111 91100');
+  const [caregiverContact, setCaregiverContact] = useState(userProfile.caregiverContact || '+91 98765 43210 (Dr. Carlos)');
 
   // Routine & Time Slots
   const [dailyRoutine, setDailyRoutine] = useState<DailyRoutineType>(userProfile.dailyRoutine || 'Retired');

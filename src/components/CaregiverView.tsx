@@ -56,7 +56,7 @@ export const CaregiverView: React.FC<CaregiverViewProps> = ({ userProfile, confi
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           caregiverName: 'Caregiver Contact',
-          caregiverPhone: userProfile.caregiverContact || '+1 555-888-9999',
+          caregiverPhone: userProfile.caregiverContact || '+91 98765 43210',
           patientName: patientName,
           missedMedication: 'Lantus Insulin 18U',
           scheduledTime: '09:00 PM',

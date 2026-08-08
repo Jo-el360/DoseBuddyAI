@@ -12,7 +12,7 @@ class PhoneAuthScreen extends StatefulWidget {
 
 class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
   final AuthService _authService = AuthService();
-  final TextEditingController _phoneController = TextEditingController(text: '+1 555-019-2831');
+  final TextEditingController _phoneController = TextEditingController(text: '+91 98765 43210');
   final TextEditingController _otpController = TextEditingController();
   final TextEditingController _nameController = TextEditingController(text: 'Maria Miller');
 

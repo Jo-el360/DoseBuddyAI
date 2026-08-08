@@ -17,8 +17,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final TextEditingController _fullNameController = TextEditingController(text: 'Maria Miller');
   final TextEditingController _emailController = TextEditingController(text: 'maria.miller@example.com');
   final TextEditingController _ageController = TextEditingController(text: '68');
-  final TextEditingController _caregiverController = TextEditingController(text: '+1 555-888-9999 (Dr. Carlos)');
-  final TextEditingController _emergencyController = TextEditingController(text: '+1 555-911-0000');
+  final TextEditingController _caregiverController = TextEditingController(text: '+91 98765 43210 (Dr. Carlos)');
+  final TextEditingController _emergencyController = TextEditingController(text: '+91 98111 91100');
   final TextEditingController _wakeTimeController = TextEditingController(text: '07:30 AM');
   final TextEditingController _sleepTimeController = TextEditingController(text: '09:30 PM');
 
