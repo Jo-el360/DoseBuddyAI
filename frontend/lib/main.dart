@@ -112,6 +112,7 @@ class _NavigationWrapperState extends State<NavigationWrapper> {
       const MedicationManagementScreen(),
       const AIAssistantScreen(),
       const CaregiverDashboardScreen(),
+      ProfileScreen(onLogout: widget.onLogout),
     ];
 
     return Scaffold(
@@ -147,7 +148,10 @@ class _NavigationWrapperState extends State<NavigationWrapper> {
         backgroundColor: widget.isHighContrast ? Colors.yellow[300] : const Color(0xFFE0F2FE),
         actions: [
           ElevatedButton.icon(
-            onPressed: widget.onLogout,
+            onPressed: () {
+              Navigator.of(context).popUntil((route) => route.isFirst);
+              widget.onLogout();
+            },
             icon: const Icon(Icons.logout, size: 16, color: Colors.white),
             label: const Text('Logout', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white)),
             style: ElevatedButton.styleFrom(
@@ -184,24 +188,29 @@ class _NavigationWrapperState extends State<NavigationWrapper> {
         onDestinationSelected: (index) => setState(() => _selectedIndex = index),
         destinations: const [
           NavigationDestination(
-            icon: Icon(Icons.home_outlined, size: 28),
-            selectedIcon: Icon(Icons.home, size: 30),
+            icon: Icon(Icons.home_outlined, size: 26),
+            selectedIcon: Icon(Icons.home, size: 28),
             label: 'My Dose',
           ),
           NavigationDestination(
-            icon: Icon(Icons.medication_outlined, size: 28),
-            selectedIcon: Icon(Icons.medication, size: 30),
+            icon: Icon(Icons.medication_outlined, size: 26),
+            selectedIcon: Icon(Icons.medication, size: 28),
             label: 'Medicines',
           ),
           NavigationDestination(
-            icon: Icon(Icons.smart_toy_outlined, size: 28),
-            selectedIcon: Icon(Icons.smart_toy, size: 30),
+            icon: Icon(Icons.smart_toy_outlined, size: 26),
+            selectedIcon: Icon(Icons.smart_toy, size: 28),
             label: 'AI Assistant',
           ),
           NavigationDestination(
-            icon: Icon(Icons.family_restroom_outlined, size: 28),
-            selectedIcon: Icon(Icons.family_restroom, size: 30),
+            icon: Icon(Icons.family_restroom_outlined, size: 26),
+            selectedIcon: Icon(Icons.family_restroom, size: 28),
             label: 'Caregiver',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.settings_outlined, size: 26),
+            selectedIcon: Icon(Icons.settings, size: 28),
+            label: 'Profile & Reminders',
           ),
         ],
       ),
