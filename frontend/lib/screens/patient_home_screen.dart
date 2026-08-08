@@ -323,7 +323,48 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
 
           _isLoading
               ? const Center(child: CircularProgressIndicator())
-              : Column(
+              : _medications.isEmpty
+                  ? Card(
+                      color: Colors.white,
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        side: BorderSide(color: const Color(0xFF0284C7).withOpacity(0.3)),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(28),
+                        child: Column(
+                          children: [
+                            const Text("💊", style: TextStyle(fontSize: 52)),
+                            const SizedBox(height: 12),
+                            const Text("No Prescriptions Added Yet", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
+                            const SizedBox(height: 8),
+                            const Text(
+                              "Your medication cabinet is currently empty. Add your daily medicines to enable automatic real-time local alarms!",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(color: Colors.grey, fontSize: 15),
+                            ),
+                            const SizedBox(height: 20),
+                            ElevatedButton.icon(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (_) => const MedicationManagementScreen()),
+                                ).then((_) => _loadData());
+                              },
+                              icon: const Icon(Icons.add, color: Colors.white),
+                              label: const Text("+ Add Prescription Now", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF0284C7),
+                                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    )
+                  : Column(
                   children: _medications.map((med) {
                     final isTaken = _takenToday[med.id] ?? false;
                     return Card(
