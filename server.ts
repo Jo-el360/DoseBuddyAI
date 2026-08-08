@@ -195,6 +195,47 @@ app.post("/api/alerts/trigger", (req, res) => {
   res.json({ success: true, alert: alertObj });
 });
 
+// GET Caregiver Alerts List
+app.get("/api/caregiver/alerts", (req, res) => {
+  res.json({ success: true, alerts: caregiverAlertsStore });
+});
+
+// Dynamic Caregiver Missed Dose & Push Alert Dispatch
+app.post("/api/caregiver/notify", (req, res) => {
+  const { caregiverName, caregiverPhone, patientName, missedMedication, scheduledTime, message } = req.body;
+  const fcmMessageId = `fcm_msg_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+
+  const newAlert = {
+    id: `alt_${Date.now()}`,
+    timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+    patientName: patientName || "Patient",
+    medicationName: missedMedication || "Scheduled Medication",
+    scheduledTime: scheduledTime || new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+    status: "DELIVERED",
+    fcmId: fcmMessageId,
+    caregiverName: caregiverName || "Caregiver Contact",
+    caregiverPhone: caregiverPhone || "+91 98765 43210",
+    message: message || `Alert dispatched to ${caregiverName || 'Caregiver'} (${caregiverPhone || '+91 98765 43210'}) for ${patientName || 'Patient'}.`,
+  };
+
+  caregiverAlertsStore = [newAlert, ...caregiverAlertsStore];
+  addSystemLog("CAREGIVER_NOTIFIED", `FCM Push Alert [${fcmMessageId}] sent to ${caregiverName || 'Caregiver'} (${caregiverPhone || '+91 98765 43210'})`, "warning");
+
+  // Broadcast real-time event to all connected screens
+  broadcastEvent("ALERT_TRIGGERED", {
+    alert: newAlert,
+    allAlerts: caregiverAlertsStore,
+    fcmMessageId,
+  });
+
+  res.json({
+    success: true,
+    message: "FCM & SMS Alert Dispatched Successfully",
+    fcm_message_id: fcmMessageId,
+    alert: newAlert,
+  });
+});
+
 // Initialize Gemini Client server-side
 const getGeminiClient = () => {
   const apiKey = process.env.GEMINI_API_KEY;
