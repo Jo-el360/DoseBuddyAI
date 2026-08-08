@@ -264,6 +264,32 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
               ),
             ),
           ),
+          const SizedBox(height: 16),
+
+          // UN SDG 3 Good Health & Well-Being Banner
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(colors: [Color(0xFF064E3B), Color(0xFF047857)]),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Row(
+              children: [
+                const Text("🌍", style: TextStyle(fontSize: 32)),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: const [
+                      Text("UN SDG 3: Good Health & Well-Being", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                      SizedBox(height: 2),
+                      Text("Target 3.4 & 3.8 • AI Prescription Safety & NCD Care", style: TextStyle(color: Color(0xFFA7F3D0), fontSize: 12)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
           const SizedBox(height: 24),
 
           // Blood Glucose Quick Entry

@@ -312,6 +312,9 @@ export const PatientView: React.FC<PatientViewProps> = ({
                 <span className="px-2.5 py-0.5 bg-sky-50 text-sky-700 text-xs font-bold rounded-full border border-sky-100">
                   {userProfile.dailyRoutine || 'Retired'} Routine
                 </span>
+                <span className="px-2.5 py-0.5 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full border border-emerald-200 flex items-center gap-1">
+                  <span>🌍</span> UN SDG 3: Good Health & Well-Being
+                </span>
               </div>
               <p className={`text-slate-500 ${isLargeText ? 'text-lg' : 'text-sm'}`}>
                 {userProfile.age} years old • {userProfile.medicalConditions?.join(', ') || 'Health Management'} • Caregiver: {userProfile.caregiverContact || 'Dr. Carlos'}
@@ -339,6 +342,32 @@ export const PatientView: React.FC<PatientViewProps> = ({
               className="bg-emerald-500 h-full transition-all duration-500 rounded-full" 
               style={{ width: `${progressPercent}%` }}
             ></div>
+          </div>
+        </div>
+      </div>
+
+      {/* UN SDG 3 Impact & Global Health Standards */}
+      <div className="p-5 bg-emerald-950/40 border border-emerald-500/30 rounded-2xl text-white shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="flex items-center gap-3.5">
+          <div className="w-12 h-12 rounded-xl bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-2xl">
+            🌍
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="font-bold text-base text-emerald-300">UN SDG 3: Good Health & Well-Being Standard</h3>
+              <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 text-[10px] uppercase font-black rounded-full border border-emerald-500/40">
+                Target 3.4 & 3.8
+              </span>
+            </div>
+            <p className="text-emerald-100/80 text-xs mt-0.5">
+              Empowering senior citizens & NCD patients with AI prescription safety, multi-lingual audio guidance, and real-time caregiver alerts.
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="text-right px-3 py-1.5 bg-emerald-900/60 rounded-xl border border-emerald-500/30 text-xs">
+            <span className="text-slate-300 block text-[10px]">NCD Protection</span>
+            <span className="text-emerald-300 font-bold">100% Active</span>
           </div>
         </div>
       </div>
