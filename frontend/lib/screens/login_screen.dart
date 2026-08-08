@@ -201,6 +201,67 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 20),
                   ],
 
+                  // 1-Click Quick Demo Sign In Section
+                  Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF1F5F9),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFFCBD5E1)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const Text(
+                          '⚡ 1-CLICK DEMO SIGN IN',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.extrabold, color: Color(0xFF475569), letterSpacing: 0.5),
+                        ),
+                        const SizedBox(height: 10),
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            if (widget.onLoginSuccess != null) {
+                              widget.onLoginSuccess!();
+                            } else {
+                              Navigator.of(context).pushReplacement(
+                                MaterialPageRoute(builder: (_) => const PatientHomeScreen()),
+                              );
+                            }
+                          },
+                          icon: const Text('👵', style: TextStyle(fontSize: 18)),
+                          label: const Text('Sign In as Maria Miller (Patient)', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF0284C7),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        OutlinedButton.icon(
+                          onPressed: () {
+                            if (widget.onLoginSuccess != null) {
+                              widget.onLoginSuccess!();
+                            } else {
+                              Navigator.of(context).pushReplacement(
+                                MaterialPageRoute(builder: (_) => const PatientHomeScreen()),
+                              );
+                            }
+                          },
+                          icon: const Text('👨‍⚕️', style: TextStyle(fontSize: 18)),
+                          label: const Text('Sign In as Dr. Carlos (Caregiver)', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
+                          style: OutlinedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            side: const BorderSide(color: Color(0xFF94A3B8)),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
                   // Email Field
                   TextFormField(
                     controller: _emailController,

@@ -116,30 +116,64 @@ class _NavigationWrapperState extends State<NavigationWrapper> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('DoseBuddy AI 🩺'),
+        title: Row(
+          children: [
+            const Text('DoseBuddy AI 🩺', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: const Color(0xFF0284C7).withOpacity(0.15),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFF0284C7).withOpacity(0.3)),
+              ),
+              child: const Row(
+                children: [
+                  CircleAvatar(
+                    radius: 9,
+                    backgroundColor: Color(0xFF0284C7),
+                    child: Text('M', style: TextStyle(fontSize: 10, color: Colors.white, fontWeight: FontWeight.bold)),
+                  ),
+                  SizedBox(width: 4),
+                  Text(
+                    'Maria Miller',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
         backgroundColor: widget.isHighContrast ? Colors.yellow[300] : const Color(0xFFE0F2FE),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.logout, color: Colors.red),
-            tooltip: 'Sign Out',
+          ElevatedButton.icon(
             onPressed: widget.onLogout,
+            icon: const Icon(Icons.logout, size: 16, color: Colors.white),
+            label: const Text('Logout', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red.shade600,
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
           ),
+          const SizedBox(width: 8),
           Row(
             children: [
-              const Icon(Icons.text_fields, size: 20),
+              const Icon(Icons.text_fields, size: 18),
               Switch(
                 value: widget.isLargeText,
                 onChanged: widget.onToggleLargeText,
                 activeColor: const Color(0xFF0369A1),
               ),
-              const SizedBox(width: 8),
-              const Icon(Icons.contrast, size: 20),
+              const Icon(Icons.contrast, size: 18),
               Switch(
                 value: widget.isHighContrast,
                 onChanged: widget.onToggleHighContrast,
                 activeColor: Colors.black,
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 8),
             ],
           )
         ],
