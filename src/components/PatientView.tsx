@@ -371,7 +371,31 @@ export const PatientView: React.FC<PatientViewProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
+            <button
+              onClick={async () => {
+                if (!('Notification' in window)) {
+                  alert("System Desktop Notifications are not supported by your browser.");
+                  return;
+                }
+                const perm = await Notification.requestPermission();
+                if (perm === 'granted') {
+                  new Notification("🔔 System Desktop Notifications Enabled!", {
+                    body: "DoseBuddy AI will now send real-time system alerts to your OS desktop when medication times arrive!",
+                    icon: "/favicon.png",
+                  });
+                  setTestStatus("✅ System Desktop Notifications ENABLED! Real OS popups will now appear when medication times arrive.");
+                } else {
+                  alert("Notification permission was denied or blocked in browser settings. Click the tune/lock icon in your browser URL address bar to set Notifications to Allow!");
+                }
+              }}
+              className="px-3.5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs rounded-xl shadow-md transition flex items-center gap-1.5"
+              title="Click once to grant OS Desktop System Notification permission"
+            >
+              <BellRing className="w-4 h-4 text-amber-300" />
+              <span>Enable System Desktop Alarms</span>
+            </button>
+
             <button
               onClick={() => triggerNotificationForMed(medications[0])}
               className="px-4 py-2.5 bg-sky-500 hover:bg-sky-400 text-white font-extrabold text-xs rounded-xl shadow-md transition flex items-center gap-2"

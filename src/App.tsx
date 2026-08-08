@@ -398,8 +398,9 @@ export default function App() {
     setMedications([]);
     setConfirmedLogs([]);
     setUserProfile(DEFAULT_USER_PROFILE);
-    localStorage.removeItem('dosebuddy_auth_session');
-    localStorage.removeItem('dosebuddy_user_profile');
+    localStorage.clear();
+    sessionStorage.clear();
+    window.location.href = '/';
   };
 
   // Real-Time SSE Stream Listener
